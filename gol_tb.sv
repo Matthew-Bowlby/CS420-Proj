@@ -1,9 +1,9 @@
-module gol_tb ()
+module gol_tb ();
     logic clk;
     logic rst;
-    logic [99:0] init_cells;
+    logic [24:0] init_cells;
 
-    gol dut (.clk (clk), .rst (rst), .init_cells (init_cells))
+    gol #(5,5) dut (.clk (clk), .rst (rst), .init_cells (init_cells));
 
     initial begin
         clk = 0;
