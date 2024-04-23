@@ -2,7 +2,7 @@ module gol #(parameter WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells);
     input logic clk;
     input logic rst;
     input logic [WIDTH*HEIGHT-1:0] init_cells;
-    logic [WIDTH*HEIGHT-1:0] cells;
+    output logic [WIDTH*HEIGHT-1:0] cells;
     generate
         genvar i;
         for (i = 0; i < WIDTH * HEIGHT; i++) begin
