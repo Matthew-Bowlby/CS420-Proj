@@ -1,4 +1,4 @@
-module gol #(parameter WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells);
+module gol #(parameter WIDTH = 50, HEIGHT = 50) (clk, rst, init_cells, cells);
     input logic clk;
     input logic rst;
     input logic [WIDTH*HEIGHT-1:0] init_cells;

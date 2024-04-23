@@ -1,19 +1,34 @@
-module gol #(parameter WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells);
+module gol #(parameter WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells, cells);
     input logic clk;
     input logic rst;
     input logic [WIDTH*HEIGHT-1:0] init_cells;
     output logic [WIDTH*HEIGHT-1:0] cells;
     generate
         genvar i;
-        for (i = 0; i < WIDTH * HEIGHT; i++) begin
+        for (i = 0; i < HEIGHT; i++) begin
+            gol_cell_line #(i * WIDTH) cell_line_inst(.clk (clk), .rst (rst), .init_cells (init_cells), .cells (cells));
+        end
+    endgenerate
+    
+endmodule //gol
+
+module gol_cell_line #(parameter STRT_IDX, WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells, cells);
+    input logic clk;
+    input logic rst;
+    input logic [WIDTH*HEIGHT-1:0] init_cells;
+    output logic [WIDTH*HEIGHT-1:0] cells;
+
+    generate
+        genvar i;
+        for (i = 0; i < WIDTH; i++) begin
             logic [7:0] neighbors;
             /* Top Left Corner */
             if (i == 0) begin
                 assign neighbors[0] = cells[WIDTH * HEIGHT - 1];
                 assign neighbors[1] = cells[WIDTH * HEIGHT - WIDTH];
                 assign neighbors[2] = cells[WIDTH * HEIGHT - WIDTH + 1];
-                assign neighbors[3] = cells[i + WIDTH - 1];
-                assign neighbors[4] = cells[i + 1];
+                assign neighbors[3] = cells[i + STRT_IDX + WIDTH - 1];
+                assign neighbors[4] = cells[i + STRT_IDX + 1];
                 assign neighbors[5] = cells[WIDTH + WIDTH - 1];
                 assign neighbors[6] = cells[WIDTH];
                 assign neighbors[7] = cells[WIDTH + 1];
@@ -23,7 +38,7 @@ module gol #(parameter WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells);
                 assign neighbors[0] = cells[WIDTH * HEIGHT - 2];
                 assign neighbors[1] = cells[WIDTH * HEIGHT - 1];
                 assign neighbors[2] = cells[WIDTH * HEIGHT - WIDTH];
-                assign neighbors[3] = cells[i - 1];
+                assign neighbors[3] = cells[i + STRT_IDX - 1];
                 assign neighbors[4] = cells[0];
                 assign neighbors[5] = cells[WIDTH + WIDTH - 2];
                 assign neighbors[6] = cells[WIDTH + WIDTH - 1];
@@ -31,88 +46,87 @@ module gol #(parameter WIDTH = 10, HEIGHT = 10) (clk, rst, init_cells);
             end
             /* Bottom Left Corner */
             else if (i == WIDTH * HEIGHT - WIDTH) begin
-                assign neighbors[0] = cells[i - 1];
-                assign neighbors[1] = cells[i - WIDTH];
-                assign neighbors[2] = cells[i - WIDTH + 1];
-                assign neighbors[3] = cells[i + WIDTH - 1];
-                assign neighbors[4] = cells[i + 1];
+                assign neighbors[0] = cells[i + STRT_IDX- 1];
+                assign neighbors[1] = cells[i + STRT_IDX - WIDTH];
+                assign neighbors[2] = cells[i + STRT_IDX - WIDTH + 1];
+                assign neighbors[3] = cells[i + STRT_IDX + WIDTH - 1];
+                assign neighbors[4] = cells[i + STRT_IDX + 1];
                 assign neighbors[5] = cells[WIDTH - 1];
                 assign neighbors[6] = cells[0];
                 assign neighbors[7] = cells[1];
             end
             /* Bottom Right Corner */
             else if (i == WIDTH * HEIGHT - 1) begin
-                assign neighbors[0] = cells[i - WIDTH - 1];
-                assign neighbors[1] = cells[i - WIDTH];
-                assign neighbors[2] = cells[i - WIDTH - WIDTH + 1];
-                assign neighbors[3] = cells[i - 1];
-                assign neighbors[4] = cells[i - WIDTH + 1];
+                assign neighbors[0] = cells[i + STRT_IDX - WIDTH - 1];
+                assign neighbors[1] = cells[i + STRT_IDX - WIDTH];
+                assign neighbors[2] = cells[i + STRT_IDX - WIDTH - WIDTH + 1];
+                assign neighbors[3] = cells[i + STRT_IDX - 1];
+                assign neighbors[4] = cells[i + STRT_IDX - WIDTH + 1];
                 assign neighbors[5] = cells[WIDTH - 2];
                 assign neighbors[6] = cells[WIDTH - 1];
                 assign neighbors[7] = cells[0];
             end
             /* Top Row */
             else if (i < WIDTH) begin
-                assign neighbors[0] = cells[i + HEIGHT * (WIDTH - 1) - 1];
-                assign neighbors[1] = cells[i + HEIGHT * (WIDTH - 1)];
-                assign neighbors[2] = cells[i + HEIGHT * (WIDTH - 1) + 1];
-                assign neighbors[3] = cells[i - 1];
-                assign neighbors[4] = cells[i + 1];
-                assign neighbors[5] = cells[i + WIDTH - 1];
-                assign neighbors[6] = cells[i + WIDTH];
-                assign neighbors[7] = cells[i + WIDTH + 1];
+                assign neighbors[0] = cells[i + STRT_IDX + HEIGHT * (WIDTH - 1) - 1];
+                assign neighbors[1] = cells[i + STRT_IDX + HEIGHT * (WIDTH - 1)];
+                assign neighbors[2] = cells[i + STRT_IDX + HEIGHT * (WIDTH - 1) + 1];
+                assign neighbors[3] = cells[i + STRT_IDX - 1];
+                assign neighbors[4] = cells[i + STRT_IDX + 1];
+                assign neighbors[5] = cells[i + STRT_IDX + WIDTH - 1];
+                assign neighbors[6] = cells[i + STRT_IDX + WIDTH];
+                assign neighbors[7] = cells[i + STRT_IDX + WIDTH + 1];
             end
             /* Bottom Row */
             else if (i > WIDTH * HEIGHT - WIDTH) begin
-                assign neighbors[0] = cells[i - WIDTH - 1];
-                assign neighbors[1] = cells[i - WIDTH];
-                assign neighbors[2] = cells[i - WIDTH + 1];
-                assign neighbors[3] = cells[i - 1];
-                assign neighbors[4] = cells[i + 1];
-                assign neighbors[5] = cells[i - HEIGHT * (WIDTH - 1) - 1];
-                assign neighbors[6] = cells[i - HEIGHT * (WIDTH - 1)];
-                assign neighbors[7] = cells[i - HEIGHT * (WIDTH - 1) + 1];
+                assign neighbors[0] = cells[i + STRT_IDX - WIDTH - 1];
+                assign neighbors[1] = cells[i + STRT_IDX - WIDTH];
+                assign neighbors[2] = cells[i + STRT_IDX - WIDTH + 1];
+                assign neighbors[3] = cells[i + STRT_IDX - 1];
+                assign neighbors[4] = cells[i + STRT_IDX + 1];
+                assign neighbors[5] = cells[i + STRT_IDX - HEIGHT * (WIDTH - 1) - 1];
+                assign neighbors[6] = cells[i + STRT_IDX - HEIGHT * (WIDTH - 1)];
+                assign neighbors[7] = cells[i + STRT_IDX - HEIGHT * (WIDTH - 1) + 1];
             end
             /* Left Column */
             else if (i % WIDTH == 0) begin
-                assign neighbors[0] = cells[i - 1];
-                assign neighbors[1] = cells[i - WIDTH];
-                assign neighbors[2] = cells[i - WIDTH + 1];
-                assign neighbors[3] = cells[i + WIDTH - 1];
-                assign neighbors[4] = cells[i + 1];
-                assign neighbors[5] = cells[i + WIDTH + WIDTH - 1];
-                assign neighbors[6] = cells[i + WIDTH];
-                assign neighbors[7] = cells[i + WIDTH + 1];
+                assign neighbors[0] = cells[i + STRT_IDX - 1];
+                assign neighbors[1] = cells[i + STRT_IDX - WIDTH];
+                assign neighbors[2] = cells[i + STRT_IDX - WIDTH + 1];
+                assign neighbors[3] = cells[i + STRT_IDX + WIDTH - 1];
+                assign neighbors[4] = cells[i + STRT_IDX + 1];
+                assign neighbors[5] = cells[i + STRT_IDX + WIDTH + WIDTH - 1];
+                assign neighbors[6] = cells[i + STRT_IDX + WIDTH];
+                assign neighbors[7] = cells[i + STRT_IDX + WIDTH + 1];
             end
             /* Right Column */
             else if ((i + 1) % WIDTH == 0) begin
-                assign neighbors[0] = cells[i - WIDTH - 1];
-                assign neighbors[1] = cells[i - WIDTH];
-                assign neighbors[2] = cells[i - WIDTH - WIDTH + 1];
-                assign neighbors[3] = cells[i - 1];
-                assign neighbors[4] = cells[i - WIDTH + 1];
-                assign neighbors[5] = cells[i + WIDTH - 1];
-                assign neighbors[6] = cells[i + WIDTH];
-                assign neighbors[7] = cells[i + 1];
+                assign neighbors[0] = cells[i + STRT_IDX - WIDTH - 1];
+                assign neighbors[1] = cells[i + STRT_IDX - WIDTH];
+                assign neighbors[2] = cells[i + STRT_IDX - WIDTH - WIDTH + 1];
+                assign neighbors[3] = cells[i + STRT_IDX - 1];
+                assign neighbors[4] = cells[i + STRT_IDX - WIDTH + 1];
+                assign neighbors[5] = cells[i + STRT_IDX + WIDTH - 1];
+                assign neighbors[6] = cells[i + STRT_IDX + WIDTH];
+                assign neighbors[7] = cells[i + STRT_IDX + 1];
             end
             /* Middle Cells */
             else begin
-                assign neighbors[0] = cells[i - WIDTH - 1];
-                assign neighbors[1] = cells[i - WIDTH];
-                assign neighbors[2] = cells[i - WIDTH + 1];
-                assign neighbors[3] = cells[i - 1];
-                assign neighbors[4] = cells[i + 1];
-                assign neighbors[5] = cells[i + WIDTH - 1];
-                assign neighbors[6] = cells[i + WIDTH];
-                assign neighbors[7] = cells[i + WIDTH + 1];
+                assign neighbors[0] = cells[i + STRT_IDX - WIDTH - 1];
+                assign neighbors[1] = cells[i + STRT_IDX - WIDTH];
+                assign neighbors[2] = cells[i + STRT_IDX - WIDTH + 1];
+                assign neighbors[3] = cells[i + STRT_IDX - 1];
+                assign neighbors[4] = cells[i + STRT_IDX + 1];
+                assign neighbors[5] = cells[i + STRT_IDX + WIDTH - 1];
+                assign neighbors[6] = cells[i + STRT_IDX + WIDTH];
+                assign neighbors[7] = cells[i + STRT_IDX + WIDTH + 1];
             end
 
 
             gol_cell cell_inst (.neighbors (neighbors), .clk (clk), .rst (rst), .init_state (init_cells[i]), .state (cells[i]));
         end
     endgenerate
-    
-endmodule //gol
+endmodule
 
 module gol_cell (neighbors, clk, rst, init_state, state);
     input logic [7:0] neighbors;
